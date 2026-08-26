@@ -4,6 +4,10 @@ ext {
     androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.7.1'
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.3.0'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.7.0'
+    androidxActivityVersion = project.hasProperty('androidxActivityVersion') ? rootProject.ext.androidxActivityVersion : '1.9.2'
+    geckoviewChannel = project.hasProperty('geckoviewChannel') ? rootProject.ext.geckoviewChannel : 'release'
+    geckoviewVersion = project.hasProperty('geckoviewVersion') ? rootProject.ext.geckoviewVersion : '130.0.0'
+    geckoviewDependency = project.hasProperty('geckoviewDependency') ? rootProject.ext.geckoviewDependency : "org.mozilla.geckoview:geckoview:$geckoviewVersion"
 }
 
 buildscript {
@@ -15,9 +19,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath 'com.android.tools.build:gradle:9.3.2'
         if (System.getenv("CAP_PLUGIN_PUBLISH") == "true") {
-            classpath 'io.github.gradle-nexus:publish-plugin:1.3.0'
+            classpath 'io.github.gradle-nexus:publish-plugin:2.0.0'
         }
     }
 }
@@ -33,8 +37,12 @@ android {
     namespace = "com.capacitorjs.plugins.app"
     compileSdk = project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
     defaultConfig {
-        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
-        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
+        minSdk {
+            version = release(project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24)
+        }
+        targetSdk {
+            version = release(project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36)
+        }
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -49,8 +57,8 @@ android {
         abortOnError = false
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     publishing {
         singleVariant("release")
@@ -60,8 +68,10 @@ android {
 repositories {
     google()
     mavenCentral()
+    maven {
+        url "https://maven.mozilla.org/maven2/"
+    }
 }
-
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -73,6 +83,8 @@ dependencies {
     }
 
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.activity:activity:$androidxActivityVersion"
+    implementation "$rootProject.ext.geckoviewDependency"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

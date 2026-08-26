@@ -16,9 +16,9 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath 'com.android.tools.build:gradle:9.3.2'
         if (System.getenv("CAP_PLUGIN_PUBLISH") == "true") {
-            classpath 'io.github.gradle-nexus:publish-plugin:1.3.0'
+            classpath 'io.github.gradle-nexus:publish-plugin:2.0.0'
         }
     }
 }
@@ -34,8 +34,12 @@ android {
     namespace = "com.capacitorjs.plugins.pushnotifications"
     compileSdk = project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 36
     defaultConfig {
-        minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
-        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
+        minSdk {
+            version = release(project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24)
+        }
+        targetSdk {
+            version = release(project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36)
+        }
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

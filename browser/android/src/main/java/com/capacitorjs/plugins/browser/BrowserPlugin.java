@@ -1,6 +1,5 @@
 package com.capacitorjs.plugins.browser;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import com.getcapacitor.Logger;
@@ -10,6 +9,12 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.util.WebColor;
 
+/**
+ * GeckoView implementation of the Capacitor Browser plugin.
+ *
+ * <p>The plugin entry point is identical to the stock plugin; only the rendering backend differs
+ * (in-app {@link GeckoView} browser instead of Chrome Custom Tabs).
+ */
 @CapacitorPlugin(name = "Browser")
 public class BrowserPlugin extends Plugin {
 
@@ -59,8 +64,7 @@ public class BrowserPlugin extends Plugin {
             Logger.error(getLogTag(), "Invalid color provided for toolbarColor. Using default", null);
         }
 
-        // open the browser and finish
-
+        // open the in-app GeckoView browser
         Intent intent = new Intent(getContext(), BrowserControllerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -68,14 +72,9 @@ public class BrowserPlugin extends Plugin {
 
         Integer finalToolbarColor = toolbarColor;
         setBrowserControllerListener((activity) -> {
-            try {
-                activity.open(implementation, url, finalToolbarColor);
-                browserControllerActivityInstance = activity;
-                call.resolve();
-            } catch (ActivityNotFoundException ex) {
-                Logger.error(getLogTag(), ex.getLocalizedMessage(), null);
-                call.reject("Unable to display URL");
-            }
+            activity.open(implementation, url, finalToolbarColor);
+            browserControllerActivityInstance = activity;
+            call.resolve();
         });
     }
 
@@ -88,18 +87,6 @@ public class BrowserPlugin extends Plugin {
             getContext().startActivity(intent);
         }
         call.resolve();
-    }
-
-    @Override
-    protected void handleOnResume() {
-        if (!implementation.bindService()) {
-            Logger.error(getLogTag(), "Error binding to custom tabs service", null);
-        }
-    }
-
-    @Override
-    protected void handleOnPause() {
-        implementation.unbindService();
     }
 
     void onBrowserEvent(int event) {

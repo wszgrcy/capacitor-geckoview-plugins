@@ -16,7 +16,19 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.util.InternalUtils;
 import java.util.Locale;
+import org.mozilla.geckoview.GeckoSession;
+import org.mozilla.geckoview.GeckoView;
 
+/**
+ * GeckoView implementation of the Capacitor App plugin.
+ *
+ * <p>The original plugin relies on {@code bridge.getWebView().canGoBack()/goBack()} for the
+ * hardware-back-button handling. GeckoView's {@link GeckoSession} does not expose a synchronous
+ * {@code canGoBack()} getter; instead the ability is reported asynchronously through
+ * {@link GeckoSession.NavigationDelegate#onCanGoBack}. This implementation tracks that state so
+ * the {@code backButton} event and default back navigation behave identically to the WebView
+ * plugin.
+ */
 @CapacitorPlugin(name = "App")
 public class AppPlugin extends Plugin {
 
@@ -29,6 +41,9 @@ public class AppPlugin extends Plugin {
     private boolean hasPausedEver = false;
 
     private OnBackPressedCallback onBackPressedCallback;
+
+    /** Tracked ability to navigate back, reported by GeckoSession.NavigationDelegate. */
+    private boolean canGoBack = false;
 
     public void load() {
         boolean disableBackButtonHandler = getConfig().getBoolean("disableBackButtonHandler", false);
@@ -43,16 +58,29 @@ public class AppPlugin extends Plugin {
             Logger.debug(getLogTag(), "Firing restored result");
             notifyListeners(EVENT_RESTORED_RESULT, result.getWrappedResult(), true);
         });
+
+        final GeckoSession session = obtainGeckoSession();
+        if (session != null) {
+            session.setNavigationDelegate(
+                new GeckoSession.NavigationDelegate() {
+                    @Override
+                    public void onCanGoBack(GeckoSession session, boolean value) {
+                        canGoBack = value;
+                    }
+                }
+            );
+        }
+
         this.onBackPressedCallback = new OnBackPressedCallback(!disableBackButtonHandler) {
             @Override
             public void handleOnBackPressed() {
                 if (!hasListeners(EVENT_BACK_BUTTON)) {
-                    if (bridge.getWebView().canGoBack()) {
-                        bridge.getWebView().goBack();
+                    if (session != null && canGoBack) {
+                        session.goBack();
                     }
                 } else {
                     JSObject data = new JSObject();
-                    data.put("canGoBack", bridge.getWebView().canGoBack());
+                    data.put("canGoBack", canGoBack);
                     notifyListeners(EVENT_BACK_BUTTON, data, true);
                     bridge.triggerJSEvent("backbutton", "document");
                 }
@@ -60,6 +88,20 @@ public class AppPlugin extends Plugin {
         };
 
         getActivity().getOnBackPressedDispatcher().addCallback(getActivity(), this.onBackPressedCallback);
+    }
+
+    /**
+     * Retrieves the {@link GeckoSession} backing the app's web content, if the app is running on
+     * a GeckoView-based bridge.
+     */
+    private GeckoSession obtainGeckoSession() {
+        if (getBridge().getWebView() instanceof GeckoView) {
+            GeckoSession session = ((GeckoView) getBridge().getWebView()).getSession();
+            if (session != null) {
+                return session;
+            }
+        }
+        return null;
     }
 
     @PluginMethod

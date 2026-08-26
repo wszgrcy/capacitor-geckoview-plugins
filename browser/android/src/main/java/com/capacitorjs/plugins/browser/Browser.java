@@ -1,20 +1,24 @@
 package com.capacitorjs.plugins.browser;
 
-import static androidx.browser.customtabs.CustomTabsIntent.SHARE_STATE_ON;
-
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.browser.customtabs.*;
+import org.mozilla.geckoview.GeckoRuntime;
+import org.mozilla.geckoview.GeckoSession;
+import org.mozilla.geckoview.GeckoView;
 
 /**
- * The Browser class implements Custom Chrome Tabs. See
- * https://developer.chrome.com/multidevice/android/customtabs for background
- * on how this code works.
+ * GeckoView implementation of the Capacitor Browser plugin.
+ *
+ * <p>The original plugin launches the page through Chrome Custom Tabs
+ * ({@code androidx.browser.customtabs}). GeckoView has no equivalent "custom tabs" provider, so
+ * this implementation renders the requested page inside an in-app browser built on
+ * {@link GeckoSession}/{@link GeckoView}. It preserves the plugin's event contract:
+ * <ul>
+ *   <li>{@link #BROWSER_LOADED} — fired when the initial URL finishes loading.</li>
+ *   <li>{@link #BROWSER_FINISHED} — fired when the in-app browser is closed by the user.</li>
+ * </ul>
  */
 public class Browser {
 
@@ -25,159 +29,114 @@ public class Browser {
         void onBrowserEvent(int event);
     }
 
-    /**
-     * Sent when the browser has loaded the initial page.
-     */
+    /** Sent when the browser has loaded the initial page. */
     public static final int BROWSER_LOADED = 1;
-    /**
-     * Sent when the browser is finished.
-     */
+    /** Sent when the browser is finished. */
     public static final int BROWSER_FINISHED = 2;
 
-    // private properties
     @Nullable
     private BrowserEventListener browserEventListener;
 
-    private Context context;
-    private static final String FALLBACK_CUSTOM_TAB_PACKAGE_NAME = "com.android.chrome";
-    private CustomTabsClient customTabsClient;
-    private CustomTabsSession browserSession;
+    private final Context context;
+    private GeckoRuntime runtime;
+    private GeckoSession session;
     private boolean isInitialLoad = false;
-    private EventGroup group;
-    private CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
-        @Override
-        public void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client) {
-            customTabsClient = client;
-            client.warmup(0);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {}
-    };
+    private boolean isFinishedNotified = false;
 
     /**
-     * Create network browser object.
-     * @param context
+     * Create the GeckoView-based browser object.
+     *
+     * @param context the application context.
      */
     public Browser(@NonNull Context context) {
         this.context = context;
-        this.group = new EventGroup(this::handleGroupCompletion);
     }
 
     /**
      * Set the object to receive callbacks.
-     * @param listener
+     *
+     * @param listener the listener.
      */
     public void setBrowserEventListener(@Nullable BrowserEventListener listener) {
         this.browserEventListener = listener;
     }
 
     /**
-     * Return the object that is receiving callbacks.
-     * @return listener
+     * @return the process-level Gecko runtime, creating it lazily if needed.
      */
-    @Nullable
-    public BrowserEventListener getBrowserEventListenerListener() {
-        return browserEventListener;
+    public GeckoRuntime getRuntime() {
+        if (runtime == null) {
+            runtime = GeckoRuntime.getDefault(context);
+        }
+        return runtime;
     }
 
     /**
-     * Open the browser to the specified URL.
-     * @param url
+     * Create and open a new {@link GeckoSession} wired up with the progress delegate needed to
+     * emit the {@code browserPageLoaded} event.
+     *
+     * @return the created session.
      */
-    public void open(Uri url) {
-        open(url, null);
+    public GeckoSession createSession() {
+        GeckoSession newSession = new GeckoSession();
+        newSession.setProgressDelegate(
+            new GeckoSession.ProgressDelegate() {
+                @Override
+                public void onPageStop(GeckoSession session, boolean success) {
+                    if (isInitialLoad) {
+                        isInitialLoad = false;
+                        if (browserEventListener != null) {
+                            browserEventListener.onBrowserEvent(BROWSER_LOADED);
+                        }
+                    }
+                }
+            }
+        );
+        newSession.open(getRuntime());
+        this.session = newSession;
+        return newSession;
     }
 
     /**
-     * Open the browser to the specified URL with the specified toolbar color.
-     * @param url
-     * @param toolbarColor
+     * Load the specified URL in the active session.
+     *
+     * @param url the URL to load.
+     * @param toolbarColor ignored; toolbar color is applied by the controller activity.
      */
     public void open(Uri url, @Nullable Integer toolbarColor) {
-        CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder(getCustomTabsSession());
-
-        builder.setShareState(SHARE_STATE_ON);
-
-        if (toolbarColor != null) {
-            CustomTabColorSchemeParams params = new CustomTabColorSchemeParams.Builder().setToolbarColor(toolbarColor.intValue()).build();
-            builder.setDefaultColorSchemeParams(params);
-        }
-
-        CustomTabsIntent tabsIntent = builder.build();
-        tabsIntent.intent.putExtra(Intent.EXTRA_REFERRER, Uri.parse(Intent.URI_ANDROID_APP_SCHEME + "//" + context.getPackageName()));
-
         isInitialLoad = true;
-        group.reset();
-        tabsIntent.launchUrl(context, url);
+        isFinishedNotified = false;
+        if (session != null) {
+            session.loadUri(url.toString());
+        }
     }
 
     /**
-     * Bind to the custom tabs service, required to be called in the `onResume` lifecycle event.
+     * Notify the plugin (once) that the in-app browser was closed, firing {@code browserFinished}.
      */
-    public boolean bindService() {
-        String customTabPackageName = CustomTabsClient.getPackageName(context, null);
-        if (null == customTabPackageName) {
-            customTabPackageName = FALLBACK_CUSTOM_TAB_PACKAGE_NAME;
+    public void notifyFinished() {
+        if (!isFinishedNotified) {
+            isFinishedNotified = true;
+            if (browserEventListener != null) {
+                browserEventListener.onBrowserEvent(BROWSER_FINISHED);
+            }
         }
-        boolean result = CustomTabsClient.bindCustomTabsService(context, customTabPackageName, connection);
-        group.leave();
-        return result;
     }
 
     /**
-     * Unbind the custom tabs service, required to be called in the `onPause` lifecycle event.
+     * Release the session and the resources associated with it.
      */
-    public void unbindService() {
-        context.unbindService(connection);
-        group.enter();
-    }
-
-    private void handledNavigationEvent(int navigationEvent) {
-        switch (navigationEvent) {
-            case CustomTabsCallback.NAVIGATION_FINISHED:
-                if (isInitialLoad) {
-                    if (browserEventListener != null) {
-                        browserEventListener.onBrowserEvent(BROWSER_LOADED);
-                    }
-                    isInitialLoad = false;
-                }
-                break;
-            case CustomTabsCallback.TAB_HIDDEN:
-                group.leave();
-                break;
-            case CustomTabsCallback.TAB_SHOWN:
-                group.enter();
-                break;
+    public void dispose() {
+        if (session != null) {
+            session.close();
+            session = null;
         }
+        isFinishedNotified = true;
     }
 
-    private void handleGroupCompletion() {
-        // events such as TAB_HIDDEN and onPause can occur for multiple reasons and in
-        // different sequences so there is no single point to fire this. so we rely on the
-        // event group to track when it is safe to assume that the browser is done.
-        if (browserEventListener != null) {
-            browserEventListener.onBrowserEvent(BROWSER_FINISHED);
-        }
-    }
-
+    /** @return the active session, or {@code null} if none has been created yet. */
     @Nullable
-    private CustomTabsSession getCustomTabsSession() {
-        if (customTabsClient == null) {
-            return null;
-        }
-
-        if (browserSession == null) {
-            browserSession = customTabsClient.newSession(
-                new CustomTabsCallback() {
-                    @Override
-                    public void onNavigationEvent(int navigationEvent, Bundle extras) {
-                        handledNavigationEvent(navigationEvent);
-                    }
-                }
-            );
-        }
-
-        return browserSession;
+    public GeckoSession getSession() {
+        return session;
     }
 }

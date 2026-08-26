@@ -1,15 +1,19 @@
 package com.capacitorjs.plugins.textzoom;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Looper;
-import android.webkit.WebView;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+/**
+ * GeckoView implementation of the Capacitor TextZoom plugin.
+ *
+ * <p>The original plugin reads/writes text zoom through {@code android.webkit.WebSettings}. This
+ * GeckoView variant delegates the same operations to the {@code GeckoRuntime} font size factor.
+ */
 @CapacitorPlugin(name = "TextZoom")
 public class TextZoomPlugin extends Plugin {
 
@@ -18,9 +22,7 @@ public class TextZoomPlugin extends Plugin {
 
     @Override
     public void load() {
-        Activity activity = getBridge().getActivity();
-        WebView webView = getBridge().getWebView();
-        textZoom = new TextZoom(activity, webView);
+        textZoom = new TextZoom(getActivity());
         mainHandler = new Handler(Looper.getMainLooper());
     }
 

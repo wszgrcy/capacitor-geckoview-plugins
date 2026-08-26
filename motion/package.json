@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/motion",
+  "name": "@capacitor-geckoview/motion",
   "version": "8.0.1",
   "description": "The Motion API tracks accelerometer and device orientation (compass heading, etc.)",
   "main": "dist/plugin.cjs.js",

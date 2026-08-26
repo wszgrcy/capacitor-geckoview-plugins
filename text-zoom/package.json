@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/text-zoom",
+  "name": "@capacitor-geckoview/text-zoom",
   "version": "8.0.1",
   "description": "The Text Zoom API provides the ability to change Web View text size for visual accessibility.",
   "main": "dist/plugin.cjs.js",

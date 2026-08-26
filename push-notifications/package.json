@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/push-notifications",
+  "name": "@capacitor-geckoview/push-notifications",
   "version": "8.1.2",
   "description": "The Push Notifications API provides access to native push notifications.",
   "main": "dist/plugin.cjs.js",

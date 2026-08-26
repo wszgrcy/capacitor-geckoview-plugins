@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/network",
+  "name": "@capacitor-geckoview/network",
   "version": "8.0.1",
   "description": "The Network API provides network and connectivity information.",
   "main": "dist/plugin.cjs.js",

@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/browser",
+  "name": "@capacitor-geckoview/browser",
   "version": "8.0.4",
   "description": "The Browser API provides the ability to open an in-app browser and subscribe to browser events.",
   "main": "dist/plugin.cjs.js",

@@ -1,5 +1,5 @@
 {
-  "name": "@capacitor/share",
+  "name": "@capacitor-geckoview/share",
   "version": "8.0.1",
   "description": "The Share API provides methods for sharing content in any sharing-enabled apps the user may have installed.",
   "main": "dist/plugin.cjs.js",

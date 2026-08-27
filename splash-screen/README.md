@@ -141,7 +141,7 @@ In `capacitor.config.json`:
 In `capacitor.config.ts`:
 
 ```ts
-/// <reference types="@capacitor/splash-screen" />
+/// <reference types="@capacitor-geckoview/splash-screen" />
 
 import { CapacitorConfig } from '@capacitor/cli';
 

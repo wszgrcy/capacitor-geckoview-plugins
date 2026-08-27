@@ -98,7 +98,7 @@ In `capacitor.config.json`:
 In `capacitor.config.ts`:
 
 ```ts
-/// <reference types="@capacitor/status-bar" />
+/// <reference types="@capacitor-geckoview/status-bar" />
 
 import { CapacitorConfig } from '@capacitor/cli';
 

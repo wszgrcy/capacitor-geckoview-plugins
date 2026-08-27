@@ -108,7 +108,7 @@ In `capacitor.config.json`:
 In `capacitor.config.ts`:
 
 ```ts
-/// <reference types="@capacitor/push-notifications" />
+/// <reference types="@capacitor-geckoview/push-notifications" />
 
 import { CapacitorConfig } from '@capacitor/cli';
 

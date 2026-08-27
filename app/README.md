@@ -93,7 +93,7 @@ In `capacitor.config.json`:
 In `capacitor.config.ts`:
 
 ```ts
-/// <reference types="@capacitor/app" />
+/// <reference types="@capacitor-geckoview/app" />
 
 import { CapacitorConfig } from '@capacitor/cli';
 

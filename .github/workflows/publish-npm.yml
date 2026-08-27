@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 jobs:
-  deploy-npm-latest:
+  deploy-npm:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -28,12 +28,12 @@ jobs:
         name: publish
         uses: JS-DevTools/npm-publish@v4
         with:
-          package: ./camera/dist/package.json
+          package: ./camera/package.json
           provenance: true
           access: public
       - uses: JS-DevTools/npm-publish@v4
         with:
-          package: ./preferences/dist/package.json
+          package: ./preferences/package.json
           provenance: true
           access: public
       - if: steps.publish.outputs.old-version != steps.publish.outputs.version

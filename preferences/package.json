@@ -19,10 +19,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ionic-team/capacitor-plugins"
+    "url": "https://github.com/wszgrcy/capacitor-geckoview-plugins"
   },
   "bugs": {
-    "url": "https://github.com/ionic-team/capacitor-plugins/issues"
+    "url": "https://github.com/wszgrcy/capacitor-geckoview-plugins/issues"
   },
   "keywords": [
     "capacitor",

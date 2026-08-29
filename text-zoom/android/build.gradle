@@ -63,13 +63,7 @@ android {
     }
 }
 
-repositories {
-    google()
-    mavenCentral()
-    maven {
-        url "https://maven.mozilla.org/maven2/"
-    }
-}
+
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])

@@ -14,6 +14,10 @@ jobs:
   deploy-npm:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [camera, preferences, app]
     steps:
       - name: init
         run: |
@@ -28,25 +32,13 @@ jobs:
           cache-dependency-path: '**/package.json'
       - run: |
           npm install
-      - id: publish
-        name: publish
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          package: ./camera/package.json
-          provenance: true
-          access: public
-      - uses: JS-DevTools/npm-publish@v4
-        with:
-          package: ./preferences/package.json
-          provenance: true
-          access: public
-      - uses: JS-DevTools/npm-publish@v4
-        with:
-          package: ./app/package.json
-          provenance: true
-          access: public
-      - if: steps.publish.outputs.old-version != steps.publish.outputs.version
+      - name: Publish ${{ matrix.package }}
+        working-directory: ${{ matrix.package }}
         run: |
-          echo "[${{ steps.publish.outputs.type }}]Version changed: ${{ steps.publish.outputs.old-version }} => ${{ steps.publish.outputs.version }}"
-          git tag v${{steps.publish.outputs.version}}
-          git push origin v${{steps.publish.outputs.version}}
+          VERSION=$(node -p "require('./package.json').version")
+          PACKAGE=$(node -p "require('./package.json').name")
+          npm view "$PACKAGE@$VERSION" version >/dev/null 2>&1 || {
+            npm publish --provenance --access public
+            git tag "${{ matrix.package }}@$VERSION"
+            git push origin "${{ matrix.package }}@$VERSION"
+          }

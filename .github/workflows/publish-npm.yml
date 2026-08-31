@@ -67,3 +67,16 @@ jobs:
         run: |
           git tag "app@${{ steps.publish-app.outputs.version }}"
           git push origin "app@${{ steps.publish-app.outputs.version }}"
+      - id: publish-device
+        name: publish device
+        uses: JS-DevTools/npm-publish@v4
+        with:
+          package: ./adevicepp/package.json
+          provenance: true
+          access: public
+          ignore-scripts: false
+      - if: steps.publish-app.outputs.old-version != steps.publish-app.outputs.version
+        name: tag device
+        run: |
+          git tag "device@${{ steps.publish-app.outputs.version }}"
+          git push origin "device@${{ steps.publish-app.outputs.version }}"

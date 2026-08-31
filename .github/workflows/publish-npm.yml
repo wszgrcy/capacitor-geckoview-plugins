@@ -71,7 +71,7 @@ jobs:
         name: publish device
         uses: JS-DevTools/npm-publish@v4
         with:
-          package: ./adevicepp/package.json
+          package: ./device/package.json
           provenance: true
           access: public
           ignore-scripts: false

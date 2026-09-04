@@ -1,6 +1,7 @@
 package com.capacitorjs.plugins.textzoom;
 
 import android.app.Activity;
+import com.getcapacitor.Bridge;
 import org.mozilla.geckoview.GeckoRuntime;
 
 /**
@@ -20,7 +21,8 @@ public class TextZoom {
 
     TextZoom(Activity activity) {
         this.activity = activity;
-        this.runtime = GeckoRuntime.getDefault(activity);
+        // Reuse the process-wide GeckoRuntime (only one is allowed per process).
+        this.runtime = Bridge.getGeckoRuntime();
     }
 
     /** @return the current zoom level as a decimal (e.g. 1.2 == 120%). */

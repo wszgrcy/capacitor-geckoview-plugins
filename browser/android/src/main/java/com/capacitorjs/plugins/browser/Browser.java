@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.getcapacitor.Bridge;
 import org.mozilla.geckoview.GeckoRuntime;
 import org.mozilla.geckoview.GeckoSession;
 import org.mozilla.geckoview.GeckoView;
@@ -61,12 +62,10 @@ public class Browser {
         this.browserEventListener = listener;
     }
 
-    /**
-     * @return the process-level Gecko runtime, creating it lazily if needed.
-     */
+    /** @return the process-wide Gecko runtime (GeckoView allows only one per process). */
     public GeckoRuntime getRuntime() {
         if (runtime == null) {
-            runtime = GeckoRuntime.getDefault(context);
+            runtime = Bridge.getGeckoRuntime();
         }
         return runtime;
     }

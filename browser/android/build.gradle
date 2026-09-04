@@ -4,8 +4,6 @@ ext {
     androidxAppCompatVersion = project.hasProperty('androidxAppCompatVersion') ? rootProject.ext.androidxAppCompatVersion : '1.7.1'
     androidxJunitVersion = project.hasProperty('androidxJunitVersion') ? rootProject.ext.androidxJunitVersion : '1.3.0'
     androidxEspressoCoreVersion = project.hasProperty('androidxEspressoCoreVersion') ? rootProject.ext.androidxEspressoCoreVersion : '3.7.0'
-    geckoviewChannel = project.hasProperty('geckoviewChannel') ? rootProject.ext.geckoviewChannel : 'release'
-    geckoviewVersion = project.hasProperty('geckoviewVersion') ? rootProject.ext.geckoviewVersion : '130.0.0'
 }
 
 buildscript {
@@ -75,7 +73,7 @@ dependencies {
     }
 
     implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
-    implementation "org.mozilla.geckoview:geckoview-${geckoviewChannel}:${geckoviewVersion}"
+    implementation "$rootProject.ext.geckoviewDependency"
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"

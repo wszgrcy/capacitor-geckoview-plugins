@@ -1,7 +1,7 @@
 import { resolve } from 'path';
 
 import { readJSON, writeJSON } from './fs.mjs';
-import { ls } from './lerna.mjs';
+import { ls } from './pnpm.mjs';
 import * as cp from './subprocess.mjs';
 
 export const setPackageJsonDependencies = async (path, packages, key = 'dependencies') => {
@@ -16,7 +16,7 @@ export const setPackageJsonDependencies = async (path, packages, key = 'dependen
   await writeJSON(path, pkg);
 };
 
-export const setLernaPackageDependencies = async (packages, key = 'dependencies') => {
+export const setWorkspacePackageDependencies = async (packages, key = 'dependencies') => {
   const paths = (await ls()).map((p) => p.location);
 
   for (const path of paths) {

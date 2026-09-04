@@ -10,6 +10,9 @@ permissions:
   contents: write
   id-token: write
 
+env:
+  PUBLISH_TAG: latest
+
 jobs:
   deploy-npm:
     runs-on: ubuntu-latest
@@ -20,63 +23,19 @@ jobs:
           git config --global user.name "${GITHUB_ACTOR}"
           git config --global user.email "${GITHUB_ACTOR}@gmail.com"
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.CAP_GH_RELEASE_TOKEN }}
       - uses: actions/setup-node@v7
         with:
           node-version: 24.x
           registry-url: https://registry.npmjs.org/
-          cache: npm
-          cache-dependency-path: '**/package.json'
-      - run: |
-          npm install
-      - id: publish-camera
-        name: publish camera
-        uses: JS-DevTools/npm-publish@v4
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
         with:
-          package: ./camera/package.json
-          provenance: true
-          access: public
-          ignore-scripts: false
-      - if: steps.publish-camera.outputs.old-version != steps.publish-camera.outputs.version
-        name: tag camera
+          version: '11'
+      - run: pnpm install
+      - name: Version & Publish
         run: |
-          git tag "camera@${{ steps.publish-camera.outputs.version }}"
-          git push origin "camera@${{ steps.publish-camera.outputs.version }}"
-      - id: publish-preferences
-        name: publish preferences
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          package: ./preferences/package.json
-          provenance: true
-          access: public
-          ignore-scripts: false
-      - if: steps.publish-preferences.outputs.old-version != steps.publish-preferences.outputs.version
-        name: tag preferences
-        run: |
-          git tag "preferences@${{ steps.publish-preferences.outputs.version }}"
-          git push origin "preferences@${{ steps.publish-preferences.outputs.version }}"
-      - id: publish-app
-        name: publish app
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          package: ./app/package.json
-          provenance: true
-          access: public
-          ignore-scripts: false
-      - if: steps.publish-app.outputs.old-version != steps.publish-app.outputs.version
-        name: tag app
-        run: |
-          git tag "app@${{ steps.publish-app.outputs.version }}"
-          git push origin "app@${{ steps.publish-app.outputs.version }}"
-      - id: publish-device
-        name: publish device
-        uses: JS-DevTools/npm-publish@v4
-        with:
-          package: ./device/package.json
-          provenance: true
-          access: public
-          ignore-scripts: false
-      - if: steps.publish-app.outputs.old-version != steps.publish-app.outputs.version
-        name: tag device
-        run: |
-          git tag "device@${{ steps.publish-app.outputs.version }}"
-          git push origin "device@${{ steps.publish-app.outputs.version }}"
+          pnpm run build
+          pnpm run publish

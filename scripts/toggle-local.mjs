@@ -1,10 +1,10 @@
 import { resolve } from 'path';
 
-import { PROJECTS } from './lib/capacitor.mjs';
+import { LOCAL_PATHS } from './lib/capacitor.mjs';
 import { execute } from './lib/cli.mjs';
 import { unlink, readJSON, writeJSON } from './lib/fs.mjs';
 import { root } from './lib/repo.mjs';
-import { ls } from './lib/lerna.mjs';
+import { ls } from './lib/pnpm.mjs';
 import { setPackageJsonDependencies } from './lib/version.mjs';
 import { run } from './lib/subprocess.mjs';
 
@@ -33,9 +33,7 @@ execute(async () => {
         return [
           p.name,
           Object.fromEntries(
-            Object.entries(pkg.devDependencies).filter(([k]) =>
-              PROJECTS.some((project) => k === `@capacitor/${project}`),
-            ),
+            Object.entries(pkg.devDependencies).filter(([k]) => k in LOCAL_PATHS),
           ),
         ];
       }),
@@ -51,7 +49,7 @@ execute(async () => {
           : Object.fromEntries(
               Object.entries(markerFileContents[p.name]).map(([k]) => [
                 k,
-                `file:../../capacitor/${k.replace(/^@capacitor\//, '')}`,
+                `file:${LOCAL_PATHS[k]}`,
               ]),
             ),
         'devDependencies',
@@ -59,7 +57,7 @@ execute(async () => {
     ),
   );
 
-  await run('npm', ['install'], { cwd: root, stdio: 'inherit' });
+  await run('pnpm', ['install'], { cwd: root, stdio: 'inherit' });
 
   if (markerFile) {
     await unlink(markerFilePath);

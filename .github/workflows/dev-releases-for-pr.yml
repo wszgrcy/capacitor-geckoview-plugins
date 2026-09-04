@@ -35,7 +35,11 @@ jobs:
             node_modules
             */node_modules
           key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
+      - run: pnpm install
       - id: files
         uses: tj-actions/changed-files@v37
         with:
@@ -77,7 +81,11 @@ jobs:
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> ~/.npmrc
           npm whoami
-      - run: npm install
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
+      - run: pnpm install
       - name: Version & Publish
         env: 
           PR_NUMBER: ${{ github.event.pull_request.number }}

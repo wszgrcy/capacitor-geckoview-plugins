@@ -1,0 +1,25 @@
+packages:
+  - action-sheet
+  - app
+  - app-launcher
+  - browser
+  - camera
+  - clipboard
+  - device
+  - dialog
+  - motion
+  - network
+  - preferences
+  - push-notifications
+  - screen-orientation
+  - screen-reader
+  - share
+  - splash-screen
+  - status-bar
+  - text-zoom
+  - toast
+  - local-notifications
+
+allowBuilds:
+  esbuild: true
+  swiftlint: true

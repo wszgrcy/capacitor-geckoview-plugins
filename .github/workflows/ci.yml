@@ -26,6 +26,10 @@ jobs:
         with:
           node-version: 22
       - uses: actions/checkout@v5
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
       - name: Restore Dependency Cache
         id: cache-modules
         uses: actions/cache@v4
@@ -33,8 +37,8 @@ jobs:
           path: |
             node_modules
             */node_modules
-          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json', 'pnpm-lock.yaml') }}
+      - run: pnpm install
       - id: files
         uses: tj-actions/changed-files@v37
         with:
@@ -58,6 +62,10 @@ jobs:
         with:
           node-version: 22
       - uses: actions/checkout@v5
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
       - name: Restore Dependency Cache
         id: cache-modules
         uses: actions/cache@v4
@@ -65,8 +73,8 @@ jobs:
           path: |
             node_modules
             */node_modules
-          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json', 'pnpm-lock.yaml') }}
+      - run: pnpm install
       - run: npm run lint
 
   lint:
@@ -84,6 +92,10 @@ jobs:
         with:
           node-version: 22
       - uses: actions/checkout@v5
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
       - name: Restore Dependency Cache
         id: cache-modules
         uses: actions/cache@v4
@@ -91,8 +103,8 @@ jobs:
           path: |
             node_modules
             */node_modules
-          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json', 'pnpm-lock.yaml') }}
+      - run: pnpm install
       - run: npm run lint
         working-directory: ${{ matrix.plugin }}
 
@@ -117,6 +129,10 @@ jobs:
         with:
           node-version: 22
       - uses: actions/checkout@v5
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
       - name: Restore Dependency Cache
         id: cache-modules
         uses: actions/cache@v4
@@ -124,8 +140,8 @@ jobs:
           path: |
             node_modules
             */node_modules
-          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json', 'pnpm-lock.yaml') }}
+      - run: pnpm install
       - run: npm run verify:ios
         working-directory: ${{ matrix.plugin }}
 
@@ -150,6 +166,10 @@ jobs:
           java-version: '21'
           distribution: 'zulu'
       - uses: actions/checkout@v5
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
       - name: Restore Dependency Cache
         id: cache-modules
         uses: actions/cache@v4
@@ -157,8 +177,8 @@ jobs:
           path: |
             node_modules
             */node_modules
-          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json', 'pnpm-lock.yaml') }}
+      - run: pnpm install
       - run: npm run set-settings-gradle-for-monorepo
       - run: npm run verify:android
         working-directory: ${{ matrix.plugin }}
@@ -179,6 +199,10 @@ jobs:
         with:
           node-version: 22
       - uses: actions/checkout@v5
+      - name: install-pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11'
       - name: Restore Dependency Cache
         id: cache-modules
         uses: actions/cache@v4
@@ -186,8 +210,8 @@ jobs:
           path: |
             node_modules
             */node_modules
-          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json') }}
-      - run: npm install
+          key: ${{ runner.os }}-dependency-caching-${{ hashFiles('package.json', '*/package.json', 'pnpm-lock.yaml') }}
+      - run: pnpm install
       - run: npm run verify:web
         working-directory: ${{ matrix.plugin }}
 

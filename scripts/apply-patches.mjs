@@ -2,23 +2,23 @@ import { basename } from 'path';
 import { Readable } from 'stream';
 
 import { execute } from './lib/cli.mjs';
-import * as lerna from './lib/lerna.mjs';
+import * as pnpm from './lib/pnpm.mjs';
 import { confirmOrExit } from './lib/prompts.mjs';
 import { root } from './lib/repo.mjs';
 import { exec, spawn, wait } from './lib/subprocess.mjs';
 
 execute(async () => {
   if (!process.argv[2]) {
-    process.stderr.write('ERR: Supply lerna package for source of patch as first argument.\n');
+    process.stderr.write('ERR: Supply workspace package for source of patch as first argument.\n');
     process.exit(1);
   }
 
-  const packages = await lerna.ls();
+  const packages = await pnpm.ls();
   const source = packages.find((p) => p.name === process.argv[2]);
   const targets = packages.filter((p) => p !== source);
 
   if (!source) {
-    process.stderr.write(`ERR: ${source} is not a valid lerna package name.\n`);
+    process.stderr.write(`ERR: ${source} is not a valid workspace package name.\n`);
     process.exit(1);
   }
 

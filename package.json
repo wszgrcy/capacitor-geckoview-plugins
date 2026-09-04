@@ -1,25 +1,21 @@
 {
   "name": "capacitor-plugins",
+  "version": "8.5.4",
   "private": true,
   "scripts": {
-    "build": "lerna run build",
-    "watch": "lerna run --parallel --stream watch",
+    "build": "pnpm -r run build",
+    "watch": "pnpm -r --parallel run watch",
     "lint": "npm run scripts:prettier -- --check",
-    "fmt": "npm run scripts:prettier -- --write && lerna run fmt",
+    "fmt": "npm run scripts:prettier -- --write && pnpm -r run fmt",
     "scripts:prettier": "npx prettier \"scripts/**/*.mjs\"",
     "apply-patches": "node ./scripts/apply-patches.mjs",
     "toggle-local": "node ./scripts/toggle-local.mjs",
     "update-all": "node ./scripts/update-all.mjs",
     "set-capacitor-version": "node ./scripts/set-capacitor-version.mjs",
     "set-settings-gradle-for-monorepo": "node ./scripts/monorepo-tools/android-settings-gradle-fix.mjs",
-    "publish:cocoapod": "lerna run publish:cocoapod --concurrency 1",
-    "ci:publish:nightly": "lerna publish prerelease --conventional-commits --conventional-prerelease --preid nightly-$(date +\"%Y%m%dT%H%M%S\") --force-publish --no-changelog --no-git-tag-version --dist-tag nightly --no-push --yes",
-    "ci:publish:alpha": "lerna publish prerelease --conventional-commits --conventional-prerelease --preid alpha --force-publish --dist-tag next --yes",
-    "ci:publish:beta": "lerna publish prerelease --conventional-commits --conventional-prerelease --preid beta --force-publish --dist-tag next --yes",
-    "ci:publish:rc": "lerna publish prerelease --conventional-commits --conventional-prerelease --preid rc --force-publish --dist-tag next --yes",
-    "ci:publish:latest": "lerna publish --conventional-commits --dist-tag latest --no-verify-access --yes",
-    "ci:publish:latest-from-pre": "lerna publish --conventional-graduate --conventional-commits --dist-tag latest --no-verify-access --force-publish --yes",
-    "ci:publish:dev": "lerna publish prerelease --conventional-commits --conventional-prerelease --preid dev-$(date +\"%Y%m%dT%H%M%S\") --force-publish --no-changelog --no-git-tag-version --dist-tag dev --no-push --yes"
+    "publish:cocoapod": "pnpm -r run publish:cocoapod",
+    "publish": "node ./scripts/publish.mjs",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "devDependencies": {
     "@actions/core": "^1.11.1",
@@ -27,10 +23,11 @@
     "@ionic/prettier-config": "^4.0.0",
     "@types/node": "^24.10.1",
     "@types/prompts": "^2.4.9",
+    "conventional-changelog": "^7.1.1",
     "cross-spawn": "^7.0.6",
+    "execa": "^9.6.0",
     "glob": "^11.0.3",
-    "lerna": "^7.4.2",
-    "nx": "^16.10.0",
+    "yaml": "^2.9.0",
     "prettier": "^3.6.2",
     "prompts": "^2.4.2",
     "typescript": "^5.9.3"
@@ -40,26 +37,5 @@
     "identifier_name": {
       "min_length": 1
     }
-  },
-  "workspaces": [
-    "action-sheet",
-    "app",
-    "app-launcher",
-    "browser",
-    "camera",
-    "clipboard",
-    "device",
-    "dialog",
-    "motion",
-    "network",
-    "preferences",
-    "push-notifications",
-    "screen-orientation",
-    "screen-reader",
-    "share",
-    "splash-screen",
-    "status-bar",
-    "text-zoom",
-    "toast"
-  ]
+  }
 }

@@ -71,7 +71,7 @@ In `capacitor.config.json`:
 In `capacitor.config.ts`:
 
 ```ts
-/// <reference types="@capacitor/local-notifications" />
+/// <reference types="@capacitor-geckoview/local-notifications" />
 
 import { CapacitorConfig } from '@capacitor/cli';
 

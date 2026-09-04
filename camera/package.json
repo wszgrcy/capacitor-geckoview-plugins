@@ -47,7 +47,6 @@
     "publish:cocoapod": "pod trunk push ./CapacitorCamera.podspec --allow-warnings"
   },
   "devDependencies": {
-    "@capacitor/android": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@capacitor/docgen": "0.3.0",
     "@capacitor/ios": "^8.0.0",
@@ -67,7 +66,8 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.2",
     "@semantic-release/npm": "^13.1.2",
-    "semantic-release": "^25.0.2"
+    "semantic-release": "^25.0.2",
+    "@capacitor-geckoview/android": "^8.0.0"
   },
   "peerDependencies": {
     "@capacitor/core": ">=8.0.0"

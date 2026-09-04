@@ -48,7 +48,6 @@
     "publish:cocoapod": "pod trunk push ./CapacitorDevice.podspec --allow-warnings"
   },
   "devDependencies": {
-    "@capacitor/android": "^8.0.0",
     "@capacitor/core": "^8.0.0",
     "@capacitor/docgen": "0.3.0",
     "@capacitor/ios": "^8.0.0",
@@ -63,7 +62,8 @@
     "swiftlint": "^2.0.0",
     "tsm": "^2.3.0",
     "typescript": "^5.9.3",
-    "uvu": "^0.5.6"
+    "uvu": "^0.5.6",
+    "@capacitor-geckoview/android": "^8.0.0"
   },
   "peerDependencies": {
     "@capacitor/core": ">=8.0.0"

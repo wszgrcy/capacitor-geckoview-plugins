@@ -15,7 +15,10 @@
     "Package.swift",
     "CapacitorActionSheet.podspec"
   ],
-  "author": "Ionic <hi@ionicframework.com>",
+  "author": {
+    "name": "wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -15,14 +15,17 @@
     "Package.swift",
     "CapacitorCamera.podspec"
   ],
-  "author": "Ionic <hi@ionicframework.com>",
+  "author": {
+    "name": "wszgrcy",
+    "email": "wszgrcy@gmail.com"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/capacitor-camera.git"
+    "url": "https://github.com/wszgrcy/capacitor-geckoview-plugins"
   },
   "bugs": {
-    "url": "https://github.com/ionic-team/capacitor-camera/issues"
+    "url": "https://github.com/wszgrcy/capacitor-geckoview-plugins/issues"
   },
   "keywords": [
     "capacitor",

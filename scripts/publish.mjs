@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { parse } from 'yaml';
@@ -30,14 +30,20 @@ const { packages } = parse(yaml);
 const pkgs = packages
   .map((dir) => {
     const location = resolve(root, dir);
-    const pkg = JSON.parse(readFileSync(resolve(location, 'package.json'), 'utf8'));
+    const pkgPath = resolve(location, 'package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 
-    return { name: pkg.name, location, private: pkg.private };
+    return { name: pkg.name, location, pkgPath, private: pkg.private };
   })
   .filter((p) => !p.private);
 
-// 发布所有包
+// 更新子包版本为根版本号并发布
 for (const pkg of pkgs) {
+  const pkgJson = JSON.parse(readFileSync(pkg.pkgPath, 'utf8'));
+  pkgJson.version = version;
+  writeFileSync(pkg.pkgPath, JSON.stringify(pkgJson, null, 2) + '\n');
+  console.log(`📝 ${pkg.name} -> ${version}`);
+
   await $({ stdio: 'inherit' })('npm', [
     'publish',
     '--access=public',

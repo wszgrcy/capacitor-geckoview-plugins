@@ -107,13 +107,58 @@ GeckoRuntime runtime = Bridge.getGeckoRuntime();
 
 ---
 
-## 五、迁移清单（Checklist）
+## 五、Gradle 8 → 9 升级兼容修改
+
+> 所有插件在升级时统一把构建链从 Gradle 8 / AGP 8 升级到 Gradle 9 / AGP 9，涉及多处写法变更（最终状态如下，后续未再改动）。
+
+> ⚠️ **采用方案**：本仓库保持 `apply plugin: 'com.android.library'`（普通 Android Library，Groovy DSL），**未迁移到 KMP**。不涉及 `com.android.kotlin.multiplatform.library`、`kotlin { android {} }`、`androidMain.dependencies {}`、`androidHostTest`/`androidDeviceTest` 等 KMP 专属写法。若参考 AGP 8.x→9.x 的 **KMP** 迁移文档，其大部分内容（插件 ID、`kotlin { android {} }` 结构、buildTypes 移除、依赖配置、测试源码集等）**均不适用**；只有 `minSdk`/`targetSdk` 写法变更等 AGP 9 通用变化可参考。
+
+> 📎 **官方参考**：AGP 9.0.0 官方 Release Notes —— <https://developer.android.com/build/releases/agp-9-0-0-release-notes>。本仓库记录的是升级时实际遇到的问题；**不同插件/宿主升级时遇到的问题可能各不相同**，遇到本文未覆盖的具体报错时，可查阅该官方文档确认对应 DSL / API 的变更。
+
+### 版本升级
+
+| 项目           | 原值                                          | 改为                                          |
+| -------------- | --------------------------------------------- | --------------------------------------------- |
+| Gradle Wrapper | `gradle-8.14.3-all.zip`                       | `gradle-9.3.1-all.zip`                        |
+| AGP            | `com.android.tools.build:gradle:8.13.0`       | `com.android.tools.build:gradle:9.3.2`        |
+| publish-plugin | `io.github.gradle-nexus:publish-plugin:1.3.0` | `io.github.gradle-nexus:publish-plugin:2.0.0` |
+
+- `gradle/wrapper/gradle-wrapper.properties` 的 `distributionUrl` 改为 Gradle 9.3.1。
+- `buildscript { dependencies { classpath ... } }` 中 AGP 改为 9.3.2，publish-plugin 改为 2.0.0。
+- **依据**（提交 `7ce2b24a`）：AGP 9 要求 Gradle 9.x（官方兼容表：Gradle ≥ 9.1.0），因此升级 Gradle Wrapper 与 AGP；publish-plugin 同步升级到与 AGP 9 兼容的版本。
+
+### `defaultConfig` 写法变更（AGP 9 API）
+
+AGP 9 废弃了 `minSdkVersion` / `targetSdkVersion` 属性，必须改为块语法 + `release(...)`：
+
+```groovy
+// 旧写法（AGP 8）
+minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24
+targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36
+
+// 新写法（AGP 9，最终状态）
+minSdk {
+    version = release(project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 24)
+}
+targetSdk {
+    version = release(project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 36)
+}
+```
+
+### `compileOptions` 调整（视插件而定）
+
+部分插件（如 `app`、`browser`、`text-zoom`）把 `compileOptions` 从 `JavaVersion.VERSION_21` 降为 `VERSION_17`；其余插件（如 `action-sheet`）保持 `VERSION_21` 不变。是否降级取决于插件实际用到的依赖/特性。
+
+---
+
+## 六、迁移清单（Checklist）
 
 对每个插件按顺序执行：
 
 - [ ] `package.json`：devDependencies 换成 `@capacitor-geckoview/android`
 - [ ] `android/settings.gradle`：`@capacitor/android/capacitor` → `@capacitor-geckoview/android/capacitor`
 - [ ] `android/build.gradle`：删除顶层 `repositories {}` 块（可选，或宿主配置 `RepositoriesMode.PREFER_SETTINGS`）
+- [ ] 升级 Gradle 8 → 9：
 - [ ] 若涉及 GeckoView：添加 `implementation "$rootProject.ext.geckoviewDependency"`
 - [ ] 源码中通过 `Bridge.getGeckoRuntime()` 获取 GeckoRuntime，并 `import com.getcapacitor.Bridge`
 - [ ] 若使用 WebView / Custom Tabs：按第四节替换为 GeckoView 对应 API
